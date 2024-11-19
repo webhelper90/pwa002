@@ -1,61 +1,27 @@
 name: Create PMTiles
 
 on:
-  workflow_dispatch: # 手動実行
-  # schedule: # 定期実行 (例: 毎日午前0時)
-  #   - cron: '0 0 * * *'
-  # push:
-  #   branches:
-  #     - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container: osrm/osrm-backend
-
     steps:
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16 # 適切なバージョンを指定
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      #- name: Install dependencies
-      #  run: |
-      #    sudo apt update
-      #    sudo apt install osmconvert tippecanoe pmtiles wget
-
       - name: Download OpenStreetMap data
         run: |
           wget -O tohoku-latest.osm.pbf $(curl -s https://download.geofabrik.de/asia/japan/tohoku.html | grep -oP 'href="\Kasia/japan/tohoku-latest\.osm\.pbf(?=")')
-
-      #- name: Filter data (Optional)
-      #  run: |
-      #    osmconvert tohoku-latest.osm.pbf --drop-nodes --way-key=highway -o=tohoku-highways.osm.pbf
-
+          
       - name: Create MBTiles
         run: |
-          tippecanoe -f -o=tohoku.mbtiles -z14 -l osm tohoku-latest.osm.pbf # 全データ
-          # tippecanoe -f -o=tohoku-highways.mbtiles -z14 -l highways tohoku-highways.osm.pbf # highwayデータのみの場合
-
+          tippecanoe -f -o=tohoku.mbtiles -z14 -l osm tohoku-latest.osm.pbf
 
       - name: Convert to PMTiles
         run: |
           pmtiles convert tohoku.mbtiles tohoku.pmtiles
-
 
       - name: Upload PMTiles artifact
         uses: actions/upload-artifact@v3
         with:
           name: tohoku-pmtiles
           path: tohoku.pmtiles
-
-      # GitHub Pagesへのデプロイ (オプション)
-      # - name: Deploy to GitHub Pages
-      #   uses: peaceiris/actions-gh-pages@v3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     publish_dir: ./ # 必要に応じて変更
