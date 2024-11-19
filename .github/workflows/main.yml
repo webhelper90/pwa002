@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Docker
-        uses: actions/setup-docker@v2
+      - uses: docker-practice/actions-setup-docker@master
 
       - name: Build Docker image
         run: |
