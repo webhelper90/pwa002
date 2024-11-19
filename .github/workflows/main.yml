@@ -14,6 +14,12 @@ jobs:
     container: osrm/osrm-backend
 
     steps:
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # 適切なバージョンを指定
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
